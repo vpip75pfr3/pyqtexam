@@ -93,6 +93,7 @@ class FindFilesThread(QtCore.QThread):
                             path_list.append(file_path)
                     elif self.pattern_type == 'Бинарный':
                         with open(file_path, 'rb') as f:
+                            print(f.read())
                             if pattern.search(f.read()):
                                 path_list.append(file_path)
         self.PathesSignal.emit(path_list)
