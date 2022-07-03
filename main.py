@@ -91,17 +91,24 @@ class FindFilesThread(QtCore.QThread):
                     if self.pattern_type == 'Строки':
                         if pattern.search(file):
                             path_list.append(file_path)
-                    elif self.pattern_type == 'Бинарный':
+                    elif self.pattern_type == 'Байты':
                         with open(file_path, 'rb') as f:
-                            print(f.read())
                             if pattern.search(f.read()):
                                 path_list.append(file_path)
+                    elif self.pattern_type == 'Бинарный':
+                        with open(file_path, 'r') as f:
+                            try:
+                                binary = ''.join(format(x, '08b') for x in bytearray(f.read(), 'utf-8'))
+                                if pattern.search(binary):
+                                    path_list.append(file_path)
+                            except UnicodeDecodeError:
+                                pass
         self.PathesSignal.emit(path_list)
 
     def get_pattern(self):
-        if self.pattern_type == 'Строки':
+        if self.pattern_type in ('Строки', 'Бинарный'):
             pattern = re.compile(self.pattern)
-        elif self.pattern_type == 'Бинарный':
+        elif self.pattern_type == 'Байты':
             pattern = re.compile(self.pattern.encode("UTF-8"))
         else:
             pattern = ""
